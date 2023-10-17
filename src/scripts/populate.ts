@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
-
-import { User } from '@ngneat/falso';
+import { User } from '../entities/user';
 import { UserModel } from '../models/userModel';
 import { Product } from '../entities/product';
 import { ProductModel } from '../models/productModel';
@@ -24,7 +23,7 @@ async function createUsers() {
       name: 'Bob Smith',
       email: 'bob@example.com',
       password: 'bob123',
-      role: 'customer',
+      role: 'admin',
       address: '456 Main Street',
     }),
     new UserModel({
@@ -46,22 +45,51 @@ async function createUsers() {
       email: 'eva@example.com',
       password: 'eva123',
       role: 'customer',
+      address: '111 Main Street',
     }),
   ];
   await UserModel.insertMany(users);
+  return users;
 }
 
-async function createRestaurants() {
+// For testing purposes the admins array has ony 2 admins
+
+//  idAdmin: { type: String, required: true },
+//   name: { type: String, required: true, unique: true },
+//   address: { type: String, required: true },
+//   category: { type: String, required: true },
+//   isDeleted: { type: Boolean, default: false },
+// Remove the following line since UserModel is already imported above
+// import { UserModel } from '../models/userModel';
+
+async function createRestaurants(admins: User[]) {
   const restaurants = [
-    new RestaurantModel({ name: 'Tasty Pizza', address: '123 Pizza Street' }),
     new RestaurantModel({
-      name: 'Burger Delight',
-      address: '456 Burger Avenue',
+      idAdmin: admins[0].id,
+      name: 'Pizza Planet',
+      address: '123 Main Street',
+      category: 'Italian',
     }),
-    new RestaurantModel({ name: 'Pasta Paradise', address: '789 Pasta Road' }),
-    new RestaurantModel({ name: 'Sushi World', address: '101 Sushi Lane' }),
-    new RestaurantModel({ name: 'Salad Bar', address: '102 Salad Blvd' }),
+    new RestaurantModel({
+      idAdmin: admins[1].id,
+      name: 'Burger Palace',
+      address: '456 Main Street',
+      category: 'American',
+    }),
+    new RestaurantModel({
+      idAdmin: admins[1].id,
+      name: 'Pasta Place',
+      address: '789 Main Street',
+      category: 'Italian',
+    }),
+    new RestaurantModel({
+      idAdmin: admins[0].id,
+      name: 'Sushi Central',
+      address: '101 Main Street',
+      category: 'Japanese',
+    }),
   ];
+
   await RestaurantModel.insertMany(restaurants);
 }
 
@@ -69,42 +97,46 @@ async function createProducts(restaurantIds: string[]) {
   if (!restaurantIds || restaurantIds.length === 0) {
     throw new Error('No restaurant IDs available to create products.');
   }
+  console.log('restaurantIds: ', restaurantIds);
   const products = [
     new ProductModel({
       name: 'Pepperoni Pizza',
       description: 'Delicious pizza with pepperoni',
       price: 10.99,
+      category: 'Italian',
       restaurantId: restaurantIds[0],
     }),
     new ProductModel({
       name: 'Cheeseburger',
       description: 'Juicy burger with cheese',
       price: 7.99,
+      category: 'American',
       restaurantId: restaurantIds[1],
     }),
     new ProductModel({
       name: 'Spaghetti Carbonara',
       description: 'Pasta with cream and bacon',
       price: 8.99,
+      category: 'Italian',
       restaurantId: restaurantIds[2],
     }),
     new ProductModel({
       name: 'California Roll',
       description: 'Popular sushi roll',
       price: 5.99,
+      category: 'Japanese',
       restaurantId: restaurantIds[3],
     }),
     new ProductModel({
       name: 'Caesar Salad',
       description: 'Salad with lettuce, croutons, and Caesar dressing',
       price: 6.99,
-      restaurantId: restaurantIds[4],
+      category: 'American',
+      restaurantId: restaurantIds[3],
     }),
   ];
   await ProductModel.insertMany(products);
 }
-
-// src/scripts/populate.ts
 
 async function createOrders(userIds: string[], productIds: string[]) {
   const products = await ProductModel.find();
@@ -117,36 +149,51 @@ async function createOrders(userIds: string[], productIds: string[]) {
   };
 
   const orders = [
-    {
+    new OrderModel({
       userId: userIds[0],
-      restaurantId: productIds[0],
-      productIds: [productIds[0], productIds[1]],
+      restaurantId: products[0].restaurantId,
+      products: [
+        { productId: productIds[0], quantity: 2 },
+        { productId: productIds[1], quantity: 1 },
+      ],
       total: calculateTotalForOrder([productIds[0], productIds[1]]),
-    },
-    {
+    }),
+    new OrderModel({
       userId: userIds[1],
-      restaurantId: productIds[1],
-      productIds: [productIds[1], productIds[2]],
+      restaurantId: products[1].restaurantId,
+      products: [
+        { productId: productIds[1], quantity: 1 },
+        { productId: productIds[2], quantity: 1 },
+      ],
       total: calculateTotalForOrder([productIds[1], productIds[2]]),
-    },
-    {
+    }),
+    new OrderModel({
       userId: userIds[2],
-      restaurantId: productIds[2],
-      productIds: [productIds[2], productIds[3]],
+      restaurantId: products[2].restaurantId,
+      products: [
+        { productId: productIds[2], quantity: 1 },
+        { productId: productIds[3], quantity: 1 },
+      ],
       total: calculateTotalForOrder([productIds[2], productIds[3]]),
-    },
-    {
+    }),
+    new OrderModel({
       userId: userIds[3],
-      restaurantId: productIds[3],
-      productIds: [productIds[3], productIds[4]],
+      restaurantId: products[3].restaurantId,
+      products: [
+        { productId: productIds[3], quantity: 1 },
+        { productId: productIds[4], quantity: 1 },
+      ],
       total: calculateTotalForOrder([productIds[3], productIds[4]]),
-    },
-    {
+    }),
+    new OrderModel({
       userId: userIds[4],
-      restaurantId: productIds[4],
-      productIds: [productIds[4], productIds[0]],
+      restaurantId: products[4].restaurantId,
+      products: [
+        { productId: productIds[4], quantity: 1 },
+        { productId: productIds[0], quantity: 1 },
+      ],
       total: calculateTotalForOrder([productIds[4], productIds[0]]),
-    },
+    }),
   ];
 
   await OrderModel.insertMany(orders);
@@ -161,8 +208,22 @@ async function populateDB() {
   await ProductModel.deleteMany({});
   await OrderModel.deleteMany({});
 
-  await createUsers();
-  await createRestaurants();
+  const usersResult = await createUsers();
+  const admins = usersResult.filter((u) => u.role === 'admin');
+
+  const adminUsers = admins.map(
+    (u) =>
+      new User(
+        u.name,
+        u.email,
+        u.password,
+        u.role,
+        u.address,
+        u.isDeleted,
+        u.id
+      )
+  );
+  await createRestaurants(adminUsers);
   const restaurants = await RestaurantModel.find();
   await createProducts(restaurants.map((r) => r._id.toString()));
   const users = await UserModel.find();

@@ -11,18 +11,18 @@ export class OrderService {
   async placeOrder(
     userId: string,
     restaurantId: string,
-    productIds: string[]
+    products: { productId: string; quantity: number }[]
   ): Promise<Order> {
     // Lógica para calcular el total basado en los productos
     let total = 0;
-    for (const productId of productIds) {
-      const product = await this.productRepository.getProductById(productId);
+    for (const pr of products) {
+      const product = await this.productRepository.getProductById(pr.productId);
       if (product) {
         total += product.price;
       }
     }
-``
-    const order = new Order('', userId, restaurantId, productIds, total);
+    ``;
+    const order = new Order(userId, restaurantId, products, total);
     return this.orderRepository.createOrder(order);
   }
 
@@ -34,12 +34,12 @@ export class OrderService {
     id: string,
     userId?: string,
     restaurantId?: string,
-    productIds?: string[]
+    products?: { productId: string; quantity: number }[]
   ): Promise<Order | null> {
     return this.orderRepository.updateOrder(id, {
       userId,
       restaurantId,
-      productIds,
+      products,
     });
   }
 

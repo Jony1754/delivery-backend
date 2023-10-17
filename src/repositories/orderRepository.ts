@@ -21,7 +21,10 @@ export class OrderRepository {
     return new Order(
       order.userId.toString(),
       order.restaurantId.toString(),
-      order.productIds.map((id) => id.toString()),
+      order.products.map((product) => ({
+        productId: product.productId.toString(),
+        quantity: product.quantity,
+      })),
       order.total
     );
   }
@@ -35,10 +38,12 @@ export class OrderRepository {
     });
     if (!order) return null;
     return new Order(
-      order.id.toString(),
       order.userId.toString(),
       order.restaurantId.toString(),
-      order.productIds.map((id) => id.toString()),
+      order.products.map((product) => ({
+        productId: product.productId.toString(),
+        quantity: product.quantity,
+      })),
       order.total
     );
   }
@@ -47,10 +52,12 @@ export class OrderRepository {
     const order = await OrderModel.findByIdAndDelete(id);
     if (!order) return null;
     return new Order(
-      order.id.toString(),
       order.userId.toString(),
       order.restaurantId.toString(),
-      order.productIds.map((id) => id.toString()),
+      order.products.map((product) => ({
+        productId: product.productId.toString(),
+        quantity: product.quantity,
+      })),
       order.total
     );
   }
