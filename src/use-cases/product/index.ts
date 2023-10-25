@@ -4,6 +4,16 @@ import { Product } from '../../entities/product';
 export class ProductService {
   constructor(private productRepository: ProductRepository) {}
 
+  async getProductsByRestaurantAndCategory(
+    restaurantId: string,
+    category: string
+  ): Promise<Product[]> {
+    return this.productRepository.getProductsByRestaurantAndCategory(
+      restaurantId,
+      category
+    );
+  }
+
   async addProduct(
     name: string,
     description: string,

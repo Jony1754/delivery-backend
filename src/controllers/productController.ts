@@ -4,7 +4,28 @@ import { ProductService } from '../use-cases/product';
 export class ProductController {
   constructor(private productService: ProductService) {}
 
-  async addProduct(req: Request, res: Response) {
+  getProductsByRestaurantAndCategory = async (req: Request, res: Response) => {
+    try {
+      const restaurantId = req.query.restaurantId
+        ? String(req.query.restaurantId)
+        : undefined;
+      const category = req.query.category
+        ? String(req.query.category)
+        : undefined;
+
+      const products =
+        await this.productService.getProductsByRestaurantAndCategory(
+          restaurantId,
+          category
+        );
+      res.json(products);
+    } catch (error) {
+      console.error('Error at getProductsByRestaurantAndCategory: ', error);
+      res.status(400).json({ message: error.message });
+    }
+  };
+
+  addProduct = async (req: Request, res: Response) => {
     try {
       const { name, description, price, category, restaurantId } = req.body;
       const product = await this.productService.addProduct(
@@ -18,9 +39,9 @@ export class ProductController {
     } catch (error) {
       res.status(400).json({ message: error.message });
     }
-  }
+  };
   // El endpoint retorna los datos de los productos que correspondan a el  restaurante y/o categoría proveída
-  async getAllProducts(req: Request, res: Response) {
+  getAllProducts = async (req: Request, res: Response) => {
     try {
       const { restaurantId, categoryId } = req.query;
       const products = await this.productService.getAllProducts(
@@ -31,9 +52,9 @@ export class ProductController {
     } catch (error) {
       res.status(400).json({ message: error.message });
     }
-  }
+  };
 
-  async getProduct(req: Request, res: Response) {
+  getProduct = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
       const product = await this.productService.getProductById(id);
@@ -45,7 +66,7 @@ export class ProductController {
     } catch (error) {
       res.status(400).json({ message: error.message });
     }
-  }
+  };
 
   async updateProduct(req: Request, res: Response) {
     try {

@@ -7,6 +7,9 @@ export class OrderService {
     private orderRepository: OrderRepository,
     private productRepository: ProductRepository
   ) {}
+  async getOrdersByFilters(filters: any): Promise<Order[]> {
+    return this.orderRepository.getOrdersByFilters(filters);
+  }
 
   async placeOrder(
     userId: string,
@@ -22,7 +25,7 @@ export class OrderService {
       }
     }
     ``;
-    const order = new Order(userId, restaurantId, products, total);
+    const order = new Order(userId, restaurantId, products, total, 'Creado');
     return this.orderRepository.createOrder(order);
   }
 
@@ -32,15 +35,15 @@ export class OrderService {
 
   async updateOrder(
     id: string,
-    userId?: string,
-    restaurantId?: string,
-    products?: { productId: string; quantity: number }[]
+    updatedData: Partial<Order>
   ): Promise<Order | null> {
-    return this.orderRepository.updateOrder(id, {
-      userId,
-      restaurantId,
-      products,
-    });
+    const order = await this.orderRepository.getOrderById(id);
+    if (order && order.currentStatus === 'Enviado') {
+      throw new Error(
+        'No se puede actualizar un pedido que ya ha sido enviado.'
+      );
+    }
+    return this.orderRepository.updateOrder(id, updatedData);
   }
 
   async deleteOrder(id: string): Promise<Order | null> {

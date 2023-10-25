@@ -2,6 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import morgan from 'morgan';
+import dotenv from 'dotenv';
 
 import userRoutes from './routes/userRoutes';
 import productRoutes from './routes/productRoutes';
@@ -9,6 +10,7 @@ import restaurantRoutes from './routes/restaurantRoutes';
 import orderRoutes from './routes/orderRoutes';
 
 const app = express();
+dotenv.config();
 
 // Conexión a MongoDB
 mongoose

@@ -11,6 +11,7 @@ const router = express.Router();
 
 router.post('/', restaurantController.addRestaurant);
 router.get('/:id', restaurantController.getRestaurant);
+router.get('/by-category/:category', restaurantController.getRestaurantsByCategory);
 router.put('/:id', restaurantController.updateRestaurant);
 router.delete('/:id', restaurantController.deleteRestaurant);
 

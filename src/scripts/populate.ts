@@ -7,43 +7,51 @@ import { Restaurant } from '../entities/restaurant';
 import { RestaurantModel } from '../models/restaurantModel';
 import { Order } from '../entities/order';
 import { OrderModel } from '../models/orderModel';
-
+import bcrypt from 'bcryptjs';
 const MONGO_URI = 'mongodb://127.0.0.1:27017/backend';
-
+const SALT_ROUNDS = 10;
 async function createUsers() {
+  const hashedPasswords = {
+    'alice@example.com': await bcrypt.hash('alice123', SALT_ROUNDS),
+    'bob@example.com': await bcrypt.hash('bob123', SALT_ROUNDS),
+    'charlie@example.com': await bcrypt.hash('charlie123', SALT_ROUNDS),
+    'david@example.com': await bcrypt.hash('david123', SALT_ROUNDS),
+    'eva@example.com': await bcrypt.hash('eva123', SALT_ROUNDS),
+  };
+
   const users = [
     new UserModel({
       name: 'Alice Johnson',
       email: 'alice@example.com',
-      password: 'alice123',
+      password: hashedPasswords['alice@example.com'],
       role: 'admin',
       address: '123 Main Street',
     }),
     new UserModel({
       name: 'Bob Smith',
       email: 'bob@example.com',
-      password: 'bob123',
+      password: hashedPasswords['bob@example.com'],
       role: 'admin',
       address: '456 Main Street',
     }),
     new UserModel({
       name: 'Charlie Brown',
       email: 'charlie@example.com',
-      password: 'charlie123',
+      password: hashedPasswords['charlie@example.com'],
       role: 'customer',
       address: '789 Main Street',
     }),
     new UserModel({
       name: 'David Clark',
       email: 'david@example.com',
-      password: 'david123',
+      password: hashedPasswords['david@example.com'],
       role: 'customer',
       address: '101 Main Street',
     }),
     new UserModel({
       name: 'Eva White',
       email: 'eva@example.com',
-      password: 'eva123',
+      password: hashedPasswords['eva@example.com'],
       role: 'customer',
       address: '111 Main Street',
     }),
@@ -53,14 +61,6 @@ async function createUsers() {
 }
 
 // For testing purposes the admins array has ony 2 admins
-
-//  idAdmin: { type: String, required: true },
-//   name: { type: String, required: true, unique: true },
-//   address: { type: String, required: true },
-//   category: { type: String, required: true },
-//   isDeleted: { type: Boolean, default: false },
-// Remove the following line since UserModel is already imported above
-// import { UserModel } from '../models/userModel';
 
 async function createRestaurants(admins: User[]) {
   const restaurants = [
@@ -157,6 +157,7 @@ async function createOrders(userIds: string[], productIds: string[]) {
         { productId: productIds[1], quantity: 1 },
       ],
       total: calculateTotalForOrder([productIds[0], productIds[1]]),
+      currentStatus: 'Creado',
     }),
     new OrderModel({
       userId: userIds[1],
@@ -166,6 +167,7 @@ async function createOrders(userIds: string[], productIds: string[]) {
         { productId: productIds[2], quantity: 1 },
       ],
       total: calculateTotalForOrder([productIds[1], productIds[2]]),
+      currentStatus: 'En camino',
     }),
     new OrderModel({
       userId: userIds[2],
@@ -175,6 +177,7 @@ async function createOrders(userIds: string[], productIds: string[]) {
         { productId: productIds[3], quantity: 1 },
       ],
       total: calculateTotalForOrder([productIds[2], productIds[3]]),
+      currentStatus: 'En curso',
     }),
     new OrderModel({
       userId: userIds[3],
@@ -184,6 +187,7 @@ async function createOrders(userIds: string[], productIds: string[]) {
         { productId: productIds[4], quantity: 1 },
       ],
       total: calculateTotalForOrder([productIds[3], productIds[4]]),
+      currentStatus: 'En curso',
     }),
     new OrderModel({
       userId: userIds[4],
@@ -193,6 +197,7 @@ async function createOrders(userIds: string[], productIds: string[]) {
         { productId: productIds[0], quantity: 1 },
       ],
       total: calculateTotalForOrder([productIds[4], productIds[0]]),
+      currentStatus: 'Entregado',
     }),
   ];
 

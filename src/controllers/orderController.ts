@@ -4,7 +4,7 @@ import { OrderService } from '../use-cases/order';
 export class OrderController {
   constructor(private orderService: OrderService) {}
 
-  async placeOrder(req: Request, res: Response) {
+  placeOrder = async (req: Request, res: Response) => {
     try {
       const { userId, restaurantId, productIds } = req.body;
       const order = await this.orderService.placeOrder(
@@ -16,11 +16,21 @@ export class OrderController {
     } catch (error) {
       res.status(400).json({ message: error.message });
     }
-  }
+  };
 
-  async getOrder(req: Request, res: Response) {
+  getOrdersByFilters = async (req: Request, res: Response) => {
+    try {
+      const orders = await this.orderService.getOrdersByFilters(req.query);
+      res.json(orders);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  };
+
+  getOrder = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
+      console.log('fall into getOrder with id: ', id);
       const order = await this.orderService.getOrderById(id);
       if (order) {
         res.json(order);
@@ -28,11 +38,12 @@ export class OrderController {
         res.status(404).json({ message: 'Order not found' });
       }
     } catch (error) {
+      console.log('error at getOrder: ', error);
       res.status(400).json({ message: error.message });
     }
-  }
+  };
 
-  async updateOrder(req: Request, res: Response) {
+  updateOrder = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
       const updatedData = req.body;
@@ -45,9 +56,9 @@ export class OrderController {
     } catch (error) {
       res.status(400).json({ message: error.message });
     }
-  }
+  };
 
-  async deleteOrder(req: Request, res: Response) {
+  deleteOrder = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
       const deletedOrder = await this.orderService.deleteOrder(id);
@@ -59,5 +70,5 @@ export class OrderController {
     } catch (error) {
       res.status(400).json({ message: error.message });
     }
-  }
+  };
 }

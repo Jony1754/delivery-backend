@@ -11,12 +11,29 @@ export class OrderRepository {
         productId: product.productId.toString(),
         quantity: product.quantity,
       })),
-      newOrder.total
+      newOrder.total,
+      newOrder.currentStatus
+    );
+  }
+  async getOrdersByFilters(filters: any): Promise<Order[]> {
+    const orders = await OrderModel.find(filters);
+    return orders.map(
+      (order) =>
+        new Order(
+          order.userId.toString(),
+          order.restaurantId.toString(),
+          order.products.map((product) => ({
+            productId: product.productId.toString(),
+            quantity: product.quantity,
+          })),
+          order.total,
+          order.currentStatus
+        )
     );
   }
 
   async getOrderById(id: string): Promise<Order | null> {
-    const order = await OrderModel.findById(id).populate('productIds');
+    const order = await OrderModel.findById(id);
     if (!order) return null;
     return new Order(
       order.userId.toString(),
@@ -25,7 +42,8 @@ export class OrderRepository {
         productId: product.productId.toString(),
         quantity: product.quantity,
       })),
-      order.total
+      order.total,
+      order.currentStatus
     );
   }
 
@@ -44,12 +62,17 @@ export class OrderRepository {
         productId: product.productId.toString(),
         quantity: product.quantity,
       })),
-      order.total
+      order.total,
+      order.currentStatus
     );
   }
 
   async deleteOrder(id: string): Promise<Order | null> {
-    const order = await OrderModel.findByIdAndDelete(id);
+    const order = await OrderModel.findByIdAndUpdate(
+      id,
+      { isActive: false },
+      { new: true }
+    );
     if (!order) return null;
     return new Order(
       order.userId.toString(),
@@ -58,7 +81,8 @@ export class OrderRepository {
         productId: product.productId.toString(),
         quantity: product.quantity,
       })),
-      order.total
+      order.total,
+      order.currentStatus
     );
   }
 }

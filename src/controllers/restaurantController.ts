@@ -4,7 +4,20 @@ import { RestaurantService } from '../use-cases/restaurant';
 export class RestaurantController {
   constructor(private restaurantService: RestaurantService) {}
 
-  async addRestaurant(req: Request, res: Response) {
+  getRestaurantsByCategory = async (req: Request, res: Response) => {
+    try {
+      const { category } = req.params;
+      const restaurants = await this.restaurantService.getRestaurantsByCategory(
+        category
+      );
+      res.json(restaurants);
+    } catch (error) {
+      console.log('Error at getRestaurantsByCategory: ', error);
+      res.status(400).json({ message: error.message });
+    }
+  };
+
+  addRestaurant = async (req: Request, res: Response) => {
     try {
       const { idAdmin, name, address, category } = req.body;
       const restaurant = await this.restaurantService.addRestaurant(
@@ -17,9 +30,9 @@ export class RestaurantController {
     } catch (error) {
       res.status(400).json({ message: error.message });
     }
-  }
+  };
 
-  async getRestaurant(req: Request, res: Response) {
+  getRestaurant = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
       const restaurant = await this.restaurantService.getRestaurantById(id);
@@ -31,9 +44,9 @@ export class RestaurantController {
     } catch (error) {
       res.status(400).json({ message: error.message });
     }
-  }
+  };
 
-  async updateRestaurant(req: Request, res: Response) {
+  updateRestaurant = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
       const updatedData = req.body;
@@ -49,9 +62,9 @@ export class RestaurantController {
     } catch (error) {
       res.status(400).json({ message: error.message });
     }
-  }
+  };
 
-  async deleteRestaurant(req: Request, res: Response) {
+  deleteRestaurant = async (req: Request, res: Response) =>   {
     try {
       const { id } = req.params;
       const deletedRestaurant = await this.restaurantService.deleteRestaurant(
@@ -65,5 +78,5 @@ export class RestaurantController {
     } catch (error) {
       res.status(400).json({ message: error.message });
     }
-  }
+  };
 }

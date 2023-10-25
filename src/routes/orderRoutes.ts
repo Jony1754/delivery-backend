@@ -10,8 +10,10 @@ const orderService = new OrderService(orderRepository, productRepository);
 const orderController = new OrderController(orderService);
 
 const router = express.Router();
-
+// TODO: test all the routes in ORDERS
 router.post('/', orderController.placeOrder);
+router.get('/', orderController.getOrdersByFilters);
+
 router.get('/:id', orderController.getOrder);
 router.put('/:id', orderController.updateOrder);
 router.delete('/:id', orderController.deleteOrder);

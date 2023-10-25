@@ -1,5 +1,6 @@
 import { UserRepository } from '../../repositories/userRepository';
 import { User } from '../../entities/user';
+import bcrypt from 'bcryptjs';
 
 export class UserService {
   constructor(private userRepository: UserRepository) {}
@@ -14,8 +15,10 @@ export class UserService {
     role: string,
     address: string
   ): Promise<User> {
-    //TODO Hashing contraseñas
-    const user = new User(name, email, password, role, address);
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const user = new User(name, email, hashedPassword, role, address);
     return this.userRepository.createUser(user);
   }
 
@@ -25,6 +28,19 @@ export class UserService {
 
   async getUserByEmail(email: string): Promise<User | null> {
     return this.userRepository.findUserByEmail(email);
+  }
+
+  async verifyCredentials(
+    email: string,
+    password: string
+  ): Promise<User | null> {
+    const user = await this.getUserByEmail(email);
+    if (!user) return null;
+
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) return null;
+
+    return user;
   }
 
   async updateUser(

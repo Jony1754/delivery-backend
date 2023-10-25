@@ -4,6 +4,10 @@ import { Restaurant } from '../../entities/restaurant';
 export class RestaurantService {
   constructor(private restaurantRepository: RestaurantRepository) {}
 
+  async getRestaurantsByCategory(category: string): Promise<Restaurant[]> {
+    return this.restaurantRepository.getRestaurantsByCategory(category);
+  }
+
   async addRestaurant(
     idAdmin: string,
     name: string,

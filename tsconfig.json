@@ -1,4 +1,8 @@
 {
+  "include": [
+    "src/**/*.ts",
+    "src/types/**/*.d.ts" // Asegúrate de que TypeScript procese los archivos .d.ts en el directorio /types
+  ],
   "compilerOptions": {
     "esModuleInterop": true,
     "moduleResolution": "node",

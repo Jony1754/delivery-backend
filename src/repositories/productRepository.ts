@@ -42,6 +42,36 @@ export class ProductRepository {
     );
   }
 
+  async getProductsByRestaurantAndCategory(
+    restaurantId?: string,
+    category?: string
+  ): Promise<Product[]> {
+    let filter: any = {};
+
+    if (restaurantId) {
+      filter.restaurantId = restaurantId;
+    }
+
+    if (category) {
+      filter.category = new RegExp(category, 'i');
+    }
+
+    const products = await ProductModel.find(filter);
+
+    return products.map(
+      (product) =>
+        new Product(
+          product.name,
+          product.description,
+          product.price,
+          product.category,
+          product.restaurantId.toString(),
+          product.isDeleted,
+          product.id
+        )
+    );
+  }
+
   async getProductById(id: string): Promise<Product | null> {
     const product = await ProductModel.findById(id);
     if (!product) return null;

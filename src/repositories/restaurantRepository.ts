@@ -14,6 +14,23 @@ export class RestaurantRepository {
     );
   }
 
+  async getRestaurantsByCategory(category: string): Promise<Restaurant[]> {
+    // TODO: add the possibility to also find it by matching name
+    const regex = new RegExp(category, 'i');
+    const restaurants = await RestaurantModel.find({ category: regex });
+    return restaurants.map(
+      (restaurant) =>
+        new Restaurant(
+          restaurant.idAdmin,
+          restaurant.name,
+          restaurant.address,
+          restaurant.category,
+          restaurant.isDeleted,
+          restaurant.id.toString()
+        )
+    );
+  }
+
   async getRestaurantById(id: string): Promise<Restaurant | null> {
     const restaurant = await RestaurantModel.findById(id);
     if (!restaurant) return null;

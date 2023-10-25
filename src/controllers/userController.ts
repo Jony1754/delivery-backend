@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { UserService } from '../use-cases/user';
 import { validObjectId } from '../utils/validObjectId';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 export class UserController {
   constructor(private userService: UserService) {
     console.log('userService in constructor: ', userService);
@@ -18,8 +20,14 @@ export class UserController {
 
   register = async (req: Request, res: Response) => {
     try {
-      const { name, email, password } = req.body;
-      const user = await this.userService.registerUser(name, email, password);
+      const { name, email, password, role, address } = req.body;
+      const user = await this.userService.registerUser(
+        name,
+        email,
+        password,
+        role,
+        address
+      );
       res.status(201).json(user);
     } catch (error) {
       res.status(400).json({ message: error.message });
@@ -46,6 +54,26 @@ export class UserController {
       }
     } catch (error) {
       res.status(400).json({ message: error.message });
+    }
+  };
+
+  login = async (req: Request, res: Response) => {
+    try {
+      const { email, password } = req.body;
+      const user = await this.userService.verifyCredentials(email, password);
+      console.log('user in verify credentials: ', user);
+      if (!user) {
+        return res.status(400).send('Invalid email or password.');
+      }
+
+      const token = jwt.sign(
+        { _id: user.id, role: user.role },
+        process.env.JWT_SECRET_KEY!
+      );
+      res.send(token);
+    } catch (error) {
+      console.log('Error in login: ', error);
+      res.status(500).send('Internal server error.');
     }
   };
 
